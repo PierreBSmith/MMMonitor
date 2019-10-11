@@ -7,6 +7,20 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.ColumnSpan="2">
+            <TextBlock DockPanel.Dock="Left" Text="Install Directory: "/>
+            <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
+            <TextBlock Name="InstallDirTextBlock"/>
+        </DockPanel>
+        <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="1"/>
+        <StackPanel Name="OtherTeamPanel" Grid.Column="1" Grid.Row="1"/>
     </Grid>
 </Window>
