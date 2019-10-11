@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace MMMonitor
 {
@@ -24,23 +23,44 @@ namespace MMMonitor
     {
         const string configDir = "config",
             configFile = "config.txt";
+        FileSystemWatcher watcher;
+
 
         public MainWindow()
         {
             InitializeComponent();
             Directory.CreateDirectory("config");
-            if (File.Exists(Path.Combine(configDir, configFile)));
+            if (File.Exists(Path.Combine(configDir, configFile)))
+            {
+                InstallDirTextBlock.Text = File.ReadAllText(Path.Combine(configDir, configFile));
+            }
+            if (Directory.Exists(Path.Combine(InstallDirTextBlock.Text, "replays")))
+                watcher = new FileSystemWatcher(Path.Combine(InstallDirTextBlock.Text, "replays"), "tempArenaInfo.json");
+            else
+            {
+                watcher = new FileSystemWatcher();
+                watcher.Filter = "tempArenaInfo.json";
+            }
+            watcher.Created += TempArenaInfoCreated;
+        }
+
+        private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
+        {
+            //List<Player> players = jsonParser.Parse(e.FullPath);
+            
         }
 
         private void ChangeInstallDirButton_Click(object sender, RoutedEventArgs e)
         {
             using(FolderBrowserDialog folderBrowser = new FolderBrowserDialog())
             {
+                folderBrowser.SelectedPath = InstallDirTextBlock.Text;
                 if(folderBrowser.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string path = folderBrowser.SelectedPath;
                     File.WriteAllText("config\\config.txt", path);
                     InstallDirTextBlock.Text = path;
+                    watcher.Path = Path.Combine(InstallDirTextBlock.Text, "replays");
                 }
             }
         }
