@@ -13,19 +13,25 @@ namespace MMMonitor
         const string APP_ID = "e097fb76afcd3bc68716bff7d1e7832c";
         
 
-        public static async Task<Player> getPlayer(string ID)
+        public static Player getPlayer(string ID)
         {
-            HttpClient client = new HttpClient();
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            String data;
-            client.GetAsync("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID).ContinueWith((Task<HttpResponseMessage> msg)=>
+            using (var client = new HttpClient())
             {
-                data = JsonConvert.SerializeObject(msg.Result.Content);
-                
-            });
-            //String data = msg.Content.ReadAsStringAsync().Result;
-            string output = JsonConvert.SerializeObject(data);
-            Console.WriteLine(output);
+                var response = client.GetAsync("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = response.Content;
+
+                    // by calling .Result you are synchronously reading the result
+                    string responseString = responseContent.ReadAsStringAsync().Result;
+                    responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
+                    dynamic output = JsonConvert.DeserializeObject(responseString);
+                    Player result = new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles), (string)output.data.ID.nickname, (string)ID);
+                }
+            }            
+
             Player player = new Player();
             return player;
         }
