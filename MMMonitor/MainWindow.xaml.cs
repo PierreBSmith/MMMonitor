@@ -23,7 +23,6 @@ namespace MMMonitor
         public MainWindow()
         {
             InitializeComponent();
-            Fetcher.getPlayer("1015319311");
         }
     }
 }
