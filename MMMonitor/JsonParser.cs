@@ -23,11 +23,11 @@ namespace MMMonitor
                 gameData = File.ReadAllText(path);
             }    
             dynamic data = JsonConvert.DeserializeObject(gameData);
-            for(int i = 0; i < data.vehicles.Count; i++)
+            for (int i = 0; i < data.vehicles.Count; i++)
             {
                 players.Add(Fetcher.getPlayer((string)data.vehicles[i].name));
+                players.ElementAt(i).relation = (int)data.vehicles[i].relation;
             }
-
             return players;
         }
     }

@@ -38,7 +38,7 @@ namespace MMMonitor
                     string responseString = responseContent.ReadAsStringAsync().Result;
                     responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
                     dynamic output = JsonConvert.DeserializeObject(responseString);
-                    return new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles), (string)output.data.ID.nickname, ID, (int)output.data.relation);
+                    return new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles), (string)output.data.ID.nickname, ID, 0);
                 }
             }            
             return null;
@@ -54,9 +54,9 @@ namespace MMMonitor
         public int relation { get; set; }
         public Player()
         {
-            winrate = .2;
-            userName = "potato";
-            ID = "P Sherman, 42 Wallaby Way, Sydney";
+            winrate = 0;
+            userName = "";
+            ID = "";
         }
         public Player(double wr, string name, string ident, int relation)
         {
