@@ -46,21 +46,13 @@ namespace MMMonitor
                 watcher.Filter = "tempArenaInfo.json";
             }
             watcher.Created += TempArenaInfoCreated;
-
-            
-            List<Player> players = JsonParser.parsePlayers("tempArenaTester.json");
-            MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
-            EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
-            
         }
 
         private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
         {
             List<Player> players = JsonParser.parsePlayers(e.FullPath);
-            foreach(Player p in players)
-            {
-
-            }
+            MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
+            EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
         }
 
         private void ChangeInstallDirButton_Click(object sender, RoutedEventArgs e)

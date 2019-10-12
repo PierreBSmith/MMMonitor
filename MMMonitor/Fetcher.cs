@@ -45,7 +45,8 @@ namespace MMMonitor
         }
         
     }
-    class Player
+
+    public class Player
     {
         public double winrate { get; set; }
         public string userName { get; set; }
