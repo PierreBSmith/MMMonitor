@@ -49,44 +49,25 @@ namespace MMMonitor
             };
         }
         
-        public static Dictionary<string, string> getShipDict(string configDir, bool forceReload = false)
+        public static Dictionary<string, Ship> getShipDict(string configDir, bool forceReload = false)
         {
             string filePath = Path.Combine(configDir, "ships.json");
             if (!forceReload && File.Exists(filePath))
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(filePath));
+                return JsonConvert.DeserializeObject<Dictionary<string, Ship>>(File.ReadAllText(filePath));
             
-            Dictionary<string, string> result = new Dictionary<string, string>();
+            Dictionary<string, Ship> result = new Dictionary<string, Ship>();
             int page = 1;
             while(true)
             {
-                string resp = HttpGet("https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id=" + APP_ID + "&fields=name&page_no=" + page.ToString());
+                string resp = HttpGet("https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id=" + APP_ID + "&fields=name%2C+type%2C+tier&page_no=" + page.ToString());
                 dynamic output = JsonConvert.DeserializeObject(resp);
-                Dictionary<string, Dictionary<string, string>> dict = output.data.ToObject<Dictionary<string, Dictionary<string, string>>>();
-                Dictionary<string, string> dict2 = dict.ToDictionary(x => x.Key, x => x.Value["name"]);
-                result = result.Concat(dict2).ToDictionary(x => x.Key, x => x.Value);
+                Dictionary<string, Ship> dict = output.data.ToObject<Dictionary<string, Ship>>();
+                result = result.Concat(dict).ToDictionary(x => x.Key, x => x.Value);
                 if (page++ >= (int)output.meta.page_total)
                     break;
             }
             File.WriteAllText(filePath, JsonConvert.SerializeObject(result));
             return result;
-        }
-    }
-
-    public class Player
-    {
-        public double winrate { get; set; }
-        public string userName { get; set; }
-        public string ID { get; set; }
-        public string ship { get; set; }
-        public int relation { get; set; }
-        public int numGames { get; set; }
-        public Player()
-        {
-            winrate = 0;
-            userName = "";
-            ID = "";
-            numGames = 0;
-            relation = 0;
         }
     }
 }

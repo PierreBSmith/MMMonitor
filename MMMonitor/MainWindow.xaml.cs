@@ -66,10 +66,19 @@ namespace MMMonitor
 
         private void LoadPlayers(string path)
         {
+            int PlayerComparer(Player x, Player y)
+            {
+                int typeDiff = y.ship.type - x.ship.type; //y-x for reverse sorting order
+                if (typeDiff != 0)
+                    return typeDiff;
+                return y.ship.tier - x.ship.tier;
+            }
+
             List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
+            MyTeam.Sort(PlayerComparer);
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
-
+            EnemyTeam.Sort(PlayerComparer);
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
         }

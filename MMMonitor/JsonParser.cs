@@ -10,7 +10,7 @@ namespace MMMonitor
 {
     class JsonParser
     {
-        Dictionary<string, string> shipDict;
+        Dictionary<string, Ship> shipDict;
         string configDir;
 
         public JsonParser(string configDir)
