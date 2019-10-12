@@ -17,6 +17,7 @@ namespace MMMonitor
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             string ID = "";
+            Boolean hiddenStats = false;
             using (var client = new HttpClient())
             {
                 var firstResponse = client.GetAsync("https://api.worldoftanks.com/wgn/account/list/?application_id=" + APP_ID + "&search=" + name).Result;
@@ -38,7 +39,8 @@ namespace MMMonitor
                     string responseString = responseContent.ReadAsStringAsync().Result;
                     responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
                     dynamic output = JsonConvert.DeserializeObject(responseString);
-                    return new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles),(int)output.data.ID.statistics.pvp.battles, (string)output.data.ID.nickname, ID, 0);
+                    return new Player(output.meta.hidden == null ? ((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles):0,
+                        output.meta.hidden == null ? (int)output.data.ID.statistics.pvp.battles:0, (string)output.data.ID.nickname, ID, 0);
                 }
             }            
             return null;
