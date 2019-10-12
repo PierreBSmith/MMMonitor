@@ -43,7 +43,11 @@ namespace MMMonitor
                 InstallDirTextBlock.Text = File.ReadAllText(Path.Combine(configDir, configFile));
             }
             if (Directory.Exists(Path.Combine(InstallDirTextBlock.Text, "replays")))
+            {
                 watcher = new FileSystemWatcher(Path.Combine(InstallDirTextBlock.Text, "replays"), "tempArenaInfo.json");
+                if (File.Exists(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json")))
+                    LoadPlayers(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json"));
+            }
             else
             {
                 watcher = new FileSystemWatcher();
@@ -53,19 +57,24 @@ namespace MMMonitor
             watcher.EnableRaisingEvents = true;
         }
 
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
+        private void LoadPlayers(string path)
         {
-            List<Player> players = JsonParser.parsePlayers(e.FullPath);
+            List<Player> players = JsonParser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
 
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
+        }
+
+        private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
+        {
+            LoadPlayers(e.FullPath);
         }
 
         private void ChangeInstallDirButton_Click(object sender, RoutedEventArgs e)

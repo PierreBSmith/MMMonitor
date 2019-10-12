@@ -6,6 +6,19 @@
         xmlns:local="clr-namespace:MMMonitor"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <DataTemplate x:Key="PlayerDataTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding Path=userName}"/>
+                <TextBlock Grid.Row="1" Text="{Binding Path=winrate}"/>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -21,21 +34,10 @@
             <TextBlock Name="InstallDirTextBlock"/>
         </DockPanel>
         <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding MyTeam}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding Path=userName}"/>
-                            <TextBlock Grid.Row="1" Text="{Binding Path=winrate}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
         </StackPanel>
-        <StackPanel Name="OtherTeamPanel" Grid.Column="1" Grid.Row="1"/>
+        <StackPanel Name="EnemyTeamPanel" Grid.Column="1" Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding EnemyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
+        </StackPanel>
     </Grid>
 </Window>
