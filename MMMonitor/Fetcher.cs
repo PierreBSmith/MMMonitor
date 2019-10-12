@@ -10,17 +10,26 @@ namespace MMMonitor
 {
     static class Fetcher
     {
-        const string APP_ID = "e097fb76afcd3bc68716bff7d1e7832c";
+        const string APP_ID = "9215170717109877eac3240ae6393ed8";
         
 
         public static Player getPlayer(string name)
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+            string ID = "";
             using (var client = new HttpClient())
             {
-                var firstResponse = client.GetAsync("https://api.worldoftanks.com/wgn/account/list/?application_id=" + APP_ID + "&search" + name);
-                var response = client.GetAsync("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID).Result;
+                var firstResponse = client.GetAsync("https://api.worldoftanks.com/wgn/account/list/?application_id=" + APP_ID + "&search=" + name).Result;
+                if (firstResponse.IsSuccessStatusCode)
+                {
+                    var responseContent = firstResponse.Content;
+                    string responseString = responseContent.ReadAsStringAsync().Result;
+                    dynamic data = JsonConvert.DeserializeObject(responseString);
+                    ID = (string)data.data[0].account_id;
+                }
 
+                var response = client.GetAsync("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID).Result;
+                
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = response.Content;
@@ -29,21 +38,19 @@ namespace MMMonitor
                     string responseString = responseContent.ReadAsStringAsync().Result;
                     responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
                     dynamic output = JsonConvert.DeserializeObject(responseString);
-                    Player result = new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles), (string)output.data.ID.nickname, (string)ID, 0);
+                    return new Player(((double)output.data.ID.statistics.pvp.wins)/((double)output.data.ID.statistics.pvp.battles), (string)output.data.ID.nickname, ID, 0);
                 }
             }            
-
-            Player player = new Player();
-            return player;
+            return null;
         }
         
     }
     class Player
     {
-        double winrate;
-        string userName;
-        string ID;
-        int relation;
+        public double winrate { get; set; }
+        public string userName { get; set; }
+        public string ID { get; set; }
+        public int relation { get; set; }
         public Player()
         {
             winrate = .2;

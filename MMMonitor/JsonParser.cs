@@ -19,19 +19,13 @@ namespace MMMonitor
             List<Player> players = new List<Player>(); 
             
             string gameData = "";
-            if (File.Exists("D:\\Games\\World_of_Warships\\replays\\tempArenaTester.json")) {
-                using (StreamReader sr = File.OpenText(path))
-                {
-                    while ((sr.ReadLine()) != null)
-                    {
-                        gameData += sr.CurrentEncoding;
-                    }
-                }
+            if (File.Exists(path)) {
+                gameData = File.ReadAllText(path);
             }    
             dynamic data = JsonConvert.DeserializeObject(gameData);
-            for(int i = 0; i < data.vehicles.length; i++)
+            for(int i = 0; i < data.vehicles.Count; i++)
             {
-                players.Add(Fetcher.getPlayer(data[i].name));
+                players.Add(Fetcher.getPlayer((string)data.vehicles[i].name));
             }
 
             return players;

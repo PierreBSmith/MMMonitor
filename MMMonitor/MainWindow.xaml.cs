@@ -28,6 +28,7 @@ namespace MMMonitor
 
         public MainWindow()
         {
+            
             InitializeComponent();
             Directory.CreateDirectory("config");
             if (File.Exists(Path.Combine(configDir, configFile)))
