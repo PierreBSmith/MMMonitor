@@ -20,7 +20,22 @@
             <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
             <TextBlock Name="InstallDirTextBlock"/>
         </DockPanel>
-        <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="1"/>
+        <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding MyTeam}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding Path=userName}"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Path=winrate}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
         <StackPanel Name="OtherTeamPanel" Grid.Column="1" Grid.Row="1"/>
     </Grid>
 </Window>

@@ -25,10 +25,13 @@ namespace MMMonitor
             configFile = "config.txt";
         FileSystemWatcher watcher;
 
+        public List<Player> MyTeam { get; set; }
+        public List<Player> EnemyTeam { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
             Directory.CreateDirectory("config");
             if (File.Exists(Path.Combine(configDir, configFile)))
             {
@@ -42,12 +45,21 @@ namespace MMMonitor
                 watcher.Filter = "tempArenaInfo.json";
             }
             watcher.Created += TempArenaInfoCreated;
+
+            
+            List<Player> players = JsonParser.parsePlayers("tempArenaTester.json");
+            MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
+            EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
+            
         }
 
         private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
         {
-            //List<Player> players = jsonParser.Parse(e.FullPath);
-            
+            List<Player> players = JsonParser.parsePlayers(e.FullPath);
+            foreach(Player p in players)
+            {
+
+            }
         }
 
         private void ChangeInstallDirButton_Click(object sender, RoutedEventArgs e)
