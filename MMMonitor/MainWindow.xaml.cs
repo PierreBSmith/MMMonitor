@@ -30,6 +30,7 @@ namespace MMMonitor
 
         public MainWindow()
         {
+            
             InitializeComponent();
             DataContext = this;
             Directory.CreateDirectory("config");
