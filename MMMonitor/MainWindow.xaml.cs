@@ -107,4 +107,90 @@ namespace MMMonitor
             }
         }
     }
+
+    public class ColorContraster:IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Player player = (Player)value;
+            bool usePlayerStats = bool.Parse((string)parameter);
+            var bgColor = ColorStuff.StatsToColor(player, usePlayerStats);
+            if (bgColor.Item2 < .5 || bgColor.Item1 < 200)
+                return Colors.Black;
+            return Colors.White.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class PlayerStatsToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Player player = (Player)value;
+            bool usePlayerStats = bool.Parse((string)parameter);
+            return ColorStuff.ColorFromHSV(ColorStuff.StatsToColor(player, usePlayerStats)).ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    class ColorStuff
+    {
+        public static Color ColorFromHSV(Tuple<double, double, double> input)
+        {
+            double hue = input.Item1, saturation = input.Item2, value = input.Item3;
+            int hi = (int)(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            byte v = (byte)(value);
+            byte p = (byte)(value * (1 - saturation));
+            byte q = (byte)(value * (1 - f * saturation));
+            byte t = (byte)(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
+        }
+
+        public static Tuple<double, double, double> StatsToColor(Player player, bool usePlayerStats)
+        {
+            double scale(double val, double max1, double min1, double max2, double min2)
+            {
+                return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
+            }
+
+            double winrate = usePlayerStats ? player.winrate : player.shipWr;
+            int games = usePlayerStats ? player.numGames : player.shipGames;
+            double hue;
+            if (winrate < .40)
+                hue = 0;
+            else if (winrate <= .50)
+                hue = scale(winrate, .40, .50, 0, 60);
+            else if (winrate <= .65)
+                hue = scale(winrate, .50, .65, 60, 240);
+            else if (winrate <= .70)
+                hue = scale(winrate, .65, .70, 240, 280);
+            else
+                hue = 280;
+            double sat = Math.Min(1, Math.Sqrt(games / (usePlayerStats ? 10000.0 : 500.0)));
+            return new Tuple<double, double, double>(hue, sat, .9);
+        }
+    }
 }
