@@ -25,7 +25,9 @@ namespace MMMonitor
     {
         const string configDir = "config",
             configFile = "config.txt";
+
         FileSystemWatcher watcher;
+        JsonParser parser;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -34,10 +36,10 @@ namespace MMMonitor
 
         public MainWindow()
         {
-            
             InitializeComponent();
             DataContext = this;
-            Directory.CreateDirectory("config");
+            Directory.CreateDirectory(configDir);
+            parser = new JsonParser(configDir);
             if (File.Exists(Path.Combine(configDir, configFile)))
             {
                 InstallDirTextBlock.Text = File.ReadAllText(Path.Combine(configDir, configFile));
@@ -64,7 +66,7 @@ namespace MMMonitor
 
         private void LoadPlayers(string path)
         {
-            List<Player> players = JsonParser.parsePlayers(path);
+            List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
 

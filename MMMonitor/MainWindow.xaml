@@ -19,6 +19,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding Path=userName}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Path=ship}"/>
                     <TextBlock Grid.Row="1" Text="{Binding Path=winrate, StringFormat=Win Rate: {0:p}}"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=numGames, StringFormat=Num Games: {0:d}}"/>
                 </Grid>
