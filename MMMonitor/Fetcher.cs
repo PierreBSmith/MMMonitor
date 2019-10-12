@@ -63,7 +63,7 @@ namespace MMMonitor
         }
         public Player(double wr,int games, string name, string ident, int relation)
         {
-            winrate = wr*100;
+            winrate = wr;
             userName = name;
             ID = ident;
             this.relation = relation;
