@@ -49,6 +49,7 @@ namespace MMMonitor
                 watcher = new FileSystemWatcher(Path.Combine(InstallDirTextBlock.Text, "replays"), "tempArenaInfo.json");
                 if (File.Exists(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json")))
                     LoadPlayers(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json"));
+                watcher.EnableRaisingEvents = true;
             }
             else
             {
@@ -56,7 +57,7 @@ namespace MMMonitor
                 watcher.Filter = "tempArenaInfo.json";
             }
             watcher.Created += TempArenaInfoCreated;
-            watcher.EnableRaisingEvents = true;
+            
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -99,6 +100,9 @@ namespace MMMonitor
                     File.WriteAllText("config\\config.txt", path);
                     InstallDirTextBlock.Text = path;
                     watcher.Path = Path.Combine(InstallDirTextBlock.Text, "replays");
+                    watcher.EnableRaisingEvents = true;
+                    if (File.Exists(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json")))
+                        LoadPlayers(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json"));
                 }
             }
         }
