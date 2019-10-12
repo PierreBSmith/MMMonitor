@@ -49,8 +49,8 @@ namespace MMMonitor
                 numGames = output.meta.hidden == null ? (int)output.data.ID.statistics.pvp.battles : 0,
                 userName = (string)output.data.ID.nickname,
                 ID = ID,
-                shipGames = output.meta.hidden == null ? (int)shipsStuff.data.ID[0].pvp.battles : 0,
-                shipWr = output.meta.hidden == null ? ((double)shipsStuff.data.ID[0].pvp.wins/(int)shipsStuff.data.ID[0].pvp.battles) : 0
+                shipGames = (output.meta.hidden == null && shipsStuff.data.ID != null) ? (int)shipsStuff.data.ID[0].pvp.battles : 0,
+                shipWr = (output.meta.hidden == null && shipsStuff.data.ID != null) ? ((double)shipsStuff.data.ID[0].pvp.wins/(int)shipsStuff.data.ID[0].pvp.battles) : 0
             };
         }
         
