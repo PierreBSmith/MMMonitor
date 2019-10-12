@@ -14,6 +14,8 @@ namespace MMMonitor
         public int relation { get; set; }
         public int numGames { get; set; }
         public Ship ship { get; set; } = new Ship();
+        public int shipGames { get; set; }
+        public double shipWr { get; set; }
     }
 
     public enum ShipType { Destroyer, Cruiser, Battleship, AirCarrier };
@@ -23,5 +25,6 @@ namespace MMMonitor
         public string name { get; set; }
         public int tier { get; set; }
         public ShipType type { get; set; }
+        
     }
 }

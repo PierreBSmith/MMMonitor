@@ -43,7 +43,7 @@ namespace MMMonitor
             dynamic data = JsonConvert.DeserializeObject(gameData);
             for (int i = 0; i < data.vehicles.Count; i++)
             {
-                Player newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name);
+                Player newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name, (string)data.vehicles[i].shipId);
                 newPlayer.relation = (int)data.vehicles[i].relation;
                 string shipId = (string)data.vehicles[i].shipId;
                 if (!shipDict.ContainsKey(shipId))

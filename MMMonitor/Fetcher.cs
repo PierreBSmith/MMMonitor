@@ -25,7 +25,7 @@ namespace MMMonitor
             }
         }
 
-        public static Player getPlayer(string name)
+        public static Player getPlayer(string name, string shipID)
         {
             string ID = "";
 
@@ -40,12 +40,17 @@ namespace MMMonitor
             if (responseString == null)
                 return null;
             dynamic output = JsonConvert.DeserializeObject(responseString);
+            responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + "&account_id=" + ID + "&ship_id=" + shipID);
+            responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
+            dynamic shipsStuff = JsonConvert.DeserializeObject(responseString);
             return new Player
             {
                 winrate = output.meta.hidden == null ? ((double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles) : 0,
                 numGames = output.meta.hidden == null ? (int)output.data.ID.statistics.pvp.battles : 0,
                 userName = (string)output.data.ID.nickname,
-                ID = ID
+                ID = ID,
+                shipGames = output.meta.hidden == null ? (int)shipsStuff.data.ID[0].pvp.battles : 0,
+                shipWr = output.meta.hidden == null ? ((double)shipsStuff.data.ID[0].pvp.wins/(int)shipsStuff.data.ID[0].pvp.battles) : 0
             };
         }
         
