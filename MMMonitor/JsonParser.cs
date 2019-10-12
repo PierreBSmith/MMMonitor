@@ -11,9 +11,11 @@ namespace MMMonitor
     class JsonParser
     {
         Dictionary<string, string> shipDict;
+        string configDir;
 
         public JsonParser(string configDir)
         {
+            this.configDir = configDir;
             shipDict = Fetcher.getShipDict(configDir);
         }
         
@@ -31,7 +33,10 @@ namespace MMMonitor
             {
                 Player newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name);
                 newPlayer.relation = (int)data.vehicles[i].relation;
-                newPlayer.ship = shipDict[(string)data.vehicles[i].shipId];
+                string shipId = (string)data.vehicles[i].shipId;
+                if (!shipDict.ContainsKey(shipId))
+                    shipDict = Fetcher.getShipDict(configDir, true);
+                newPlayer.ship = shipDict[shipId];
                 players.Add(newPlayer);
             }
             return players;
