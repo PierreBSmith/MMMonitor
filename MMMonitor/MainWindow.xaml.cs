@@ -13,17 +13,21 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace MMMonitor
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         const string configDir = "config",
             configFile = "config.txt";
         FileSystemWatcher watcher;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public List<Player> MyTeam { get; set; }
         public List<Player> EnemyTeam { get; set; }
@@ -46,6 +50,12 @@ namespace MMMonitor
                 watcher.Filter = "tempArenaInfo.json";
             }
             watcher.Created += TempArenaInfoCreated;
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
@@ -53,6 +63,9 @@ namespace MMMonitor
             List<Player> players = JsonParser.parsePlayers(e.FullPath);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
+
+            NotifyPropertyChanged(nameof(MyTeam));
+            NotifyPropertyChanged(nameof(EnemyTeam));
         }
 
         private void ChangeInstallDirButton_Click(object sender, RoutedEventArgs e)
