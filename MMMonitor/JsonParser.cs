@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -26,7 +27,18 @@ namespace MMMonitor
             string gameData = "";
             if (File.Exists(path))
             {
-                gameData = File.ReadAllText(path);
+                for(int i = 0; i < 20; ++i)
+                {
+                    try
+                    {
+                        gameData = File.ReadAllText(path);
+                        break;
+                    }
+                    catch(IOException e)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
             }
             dynamic data = JsonConvert.DeserializeObject(gameData);
             for (int i = 0; i < data.vehicles.Count; i++)
