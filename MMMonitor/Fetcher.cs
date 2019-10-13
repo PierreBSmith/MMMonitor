@@ -50,7 +50,7 @@ namespace MMMonitor
                 userName = (string)output.data.ID.nickname,
                 ID = ID,
                 shipGames = (output.meta.hidden == null && shipsStuff.data.ID != null) ? (int)shipsStuff.data.ID[0].pvp.battles : 0,
-                shipWr = (output.meta.hidden == null && shipsStuff.data.ID != null) ? ((double)shipsStuff.data.ID[0].pvp.wins/(int)shipsStuff.data.ID[0].pvp.battles) : 0
+                shipWr = (output.meta.hidden == null && shipsStuff.data.ID != null && (int)shipsStuff.data.ID[0].pvp.battles > 0) ? ((double)shipsStuff.data.ID[0].pvp.wins/(int)shipsStuff.data.ID[0].pvp.battles) : 0
             };
         }
         
