@@ -82,6 +82,21 @@ namespace MMMonitor
             EnemyTeam.Sort(PlayerComparer);
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
+
+            void SetupTeamWrText(List<Player> team, TextBlock text)
+            {
+                double wr = StatAnalysis.Potatometer(team);
+                Tuple<double, double, double> hsvColor = new Tuple<double, double, double>(ColorStuff.WinrateToHue(wr), 1.0, 0.9);
+                Dispatcher.Invoke(() =>
+                {
+                    text.Text = string.Format("Weighted WR: {0:P}", wr);
+                    text.Background = new SolidColorBrush(ColorStuff.ColorFromHSV(hsvColor));
+                    text.Foreground = new SolidColorBrush(ColorStuff.GetContrastingTextColor(hsvColor));
+                });
+            }
+
+            SetupTeamWrText(MyTeam, MyTeamWrText);
+            SetupTeamWrText(EnemyTeam, EnemyTeamWrText);
         }
 
         private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
@@ -115,9 +130,7 @@ namespace MMMonitor
             Player player = (Player)value;
             bool usePlayerStats = bool.Parse((string)parameter);
             var bgColor = ColorStuff.StatsToColor(player, usePlayerStats);
-            if (bgColor.Item2 < .5 || bgColor.Item1 < 200)
-                return Colors.Black;
-            return Colors.White.ToString();
+            return ColorStuff.GetContrastingTextColor(bgColor).ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -141,7 +154,7 @@ namespace MMMonitor
         }
     }
     
-    class ColorStuff
+    static class ColorStuff
     {
         public static Color ColorFromHSV(Tuple<double, double, double> input)
         {
@@ -169,28 +182,40 @@ namespace MMMonitor
                 return Color.FromArgb(255, v, p, q);
         }
 
+        public static double WinrateToHue(double winrate)
+        {
+            if (winrate < .40)
+                return 0;
+            else if (winrate <= .50)
+                return scale(winrate, .40, .50, 0, 60);
+            else if (winrate <= .65)
+                return scale(winrate, .50, .65, 60, 240);
+            else if (winrate <= .70)
+                return scale(winrate, .65, .70, 240, 280);
+            else
+                return 280;
+        }
+
         public static Tuple<double, double, double> StatsToColor(Player player, bool usePlayerStats)
         {
-            double scale(double val, double max1, double min1, double max2, double min2)
-            {
-                return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
-            }
 
             double winrate = usePlayerStats ? player.winrate : player.shipWr;
             int games = usePlayerStats ? player.numGames : player.shipGames;
-            double hue;
-            if (winrate < .40)
-                hue = 0;
-            else if (winrate <= .50)
-                hue = scale(winrate, .40, .50, 0, 60);
-            else if (winrate <= .65)
-                hue = scale(winrate, .50, .65, 60, 240);
-            else if (winrate <= .70)
-                hue = scale(winrate, .65, .70, 240, 280);
-            else
-                hue = 280;
+            double hue = WinrateToHue(winrate);
             double sat = Math.Min(1, Math.Sqrt(games / (usePlayerStats ? 10000.0 : 500.0)));
             return new Tuple<double, double, double>(hue, sat, .9);
+        }
+
+        public static Color GetContrastingTextColor(Tuple<double, double, double> bgColor)
+        {
+            if (bgColor.Item2 < .5 || bgColor.Item1 < 200)
+                return Colors.Black;
+            return Colors.White;
+        }
+
+        private static double scale(double val, double max1, double min1, double max2, double min2)
+        {
+            return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
         }
     }
 }

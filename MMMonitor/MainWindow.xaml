@@ -7,14 +7,16 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="626" Width="1200">
     <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="TextBlockStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}"/>
         <local:PlayerStatsToColorConverter x:Key="statsConverter"/>
         <local:ColorContraster x:Key="colorContraster"/>
         <DataTemplate x:Key="PlayerDataTemplate">
             <DataTemplate.Resources>
-                <Style TargetType="TextBlock">
-                    <Setter Property="FontSize" Value="14"/>
-                    <Setter Property="Margin" Value="2"/>
-                </Style>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}"/>
             </DataTemplate.Resources>
             <Border BorderThickness="1" BorderBrush="Black">
                 <Grid>
@@ -69,6 +71,12 @@
             <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
             <TextBlock Name="InstallDirTextBlock"/>
         </DockPanel>
+        <Border Grid.Row="1" BorderThickness="1" BorderBrush="Black">
+            <TextBlock Name="MyTeamWrText"/>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderThickness="1" BorderBrush="Black">
+            <TextBlock Name="EnemyTeamWrText"/>
+        </Border>
         <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="2">
             <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
         </StackPanel>
