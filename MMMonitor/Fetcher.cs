@@ -27,26 +27,29 @@ namespace MMMonitor
 
         public static Player getPlayer(string name, string shipID)
         {
-            string ID = "";
-
+            //Use name to get player ID
             string responseString = HttpGet("https://api.worldofwarships.com/wows/account/list/?application_id=" + APP_ID + "&search=" + name);
             if (responseString == null)
                 return null;
             dynamic data = JsonConvert.DeserializeObject(responseString);
-            ID = (string)data.data[0].account_id;
+            string ID = (string)data.data[0].account_id;
 
+            //Query for account stats
             responseString = HttpGet("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID);
-            responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
             if (responseString == null)
                 return null;
+            responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
             dynamic output = JsonConvert.DeserializeObject(responseString);
+
+            //Query for ship stats
             responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + "&account_id=" + ID + "&ship_id=" + shipID);
             responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
             dynamic shipsStuff = JsonConvert.DeserializeObject(responseString);
+
             return new Player
             {
-                winrate = output.meta.hidden == null ? ((double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles) : 0,
-                numGames = output.meta.hidden == null ? (int)output.data.ID.statistics.pvp.battles : 0,
+                winrate = (output.meta.hidden == null && output.data.ID != null) ? ((double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles) : 0,
+                numGames = (output.meta.hidden == null && output.data.ID != null) ? (int)output.data.ID.statistics.pvp.battles : 0,
                 userName = (string)output.data.ID.nickname,
                 ID = ID,
                 shipGames = (output.meta.hidden == null && shipsStuff.data.ID != null) ? (int)shipsStuff.data.ID[0].pvp.battles : 0,
