@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MMMonitor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="626" Width="1200">
+        Title="MainWindow" Height="815" Width="1200">
     <Window.Resources>
         <Style TargetType="TextBlock" x:Key="TextBlockStyle">
             <Setter Property="FontSize" Value="14"/>
@@ -38,8 +38,8 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding Path=userName}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Column="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
+                    <TextBlock Grid.ColumnSpan="2" Text="{Binding Path=userName}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
+                    <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}T{1} - {0}">
                                 <Binding Path="ship.name"/>
@@ -48,40 +48,78 @@
                         </TextBlock.Text>
                     </TextBlock>
                     <TextBlock Grid.Row="1" Text="{Binding Path=winrate, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=numGames, StringFormat=Num Games: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=numGames, StringFormat=Battles: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Path=shipWr, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=shipGames, StringFormat=Num Games: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=shipGames, StringFormat=Battles: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.Resources>
-    
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <DockPanel Grid.ColumnSpan="2">
-            <TextBlock DockPanel.Dock="Left" Text="Install Directory: "/>
-            <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
-            <TextBlock Name="InstallDirTextBlock"/>
-        </DockPanel>
-        <Border Grid.Row="1" BorderThickness="1" BorderBrush="Black">
-            <TextBlock Name="MyTeamWrText"/>
-        </Border>
-        <Border Grid.Row="1" Grid.Column="1" BorderThickness="1" BorderBrush="Black">
-            <TextBlock Name="EnemyTeamWrText"/>
-        </Border>
-        <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="2">
-            <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
-        </StackPanel>
-        <StackPanel Name="EnemyTeamPanel" Grid.Column="1" Grid.Row="2">
-            <ItemsControl ItemsSource="{Binding EnemyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
-        </StackPanel>
-    </Grid>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.ColumnSpan="2">
+                <TextBlock DockPanel.Dock="Left" Text="Install Directory: "/>
+                <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
+                <TextBlock Name="InstallDirTextBlock"/>
+            </DockPanel>
+            <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
+                <TextBlock Text="Your Team" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                <TextBlock Text="Enemy Team" FontWeight="Bold"/>
+            </Border>
+            <Grid Grid.Row="2" Name="MyTeamInfoGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="1" Name="EnemyTeamInfoGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+            </Grid>
+            <Border Grid.Row="3" BorderBrush="Black" BorderThickness="1">
+                <TextBlock Text="Players" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                <TextBlock Text="Players" FontWeight="Bold"/>
+            </Border>
+            <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="4">
+                <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
+            </StackPanel>
+            <StackPanel Name="EnemyTeamPanel" Grid.Column="1" Grid.Row="4">
+                <ItemsControl ItemsSource="{Binding EnemyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Window>
