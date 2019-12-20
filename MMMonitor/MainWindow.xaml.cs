@@ -67,6 +67,11 @@ namespace MMMonitor
 
         private void LoadPlayers(string path)
         {
+            Task.Run(() => LoadPlayers2(path));
+        }
+
+        private void LoadPlayers2(string path)
+        {
             int PlayerComparer(Player x, Player y)
             {
                 int typeDiff = y.ship.type - x.ship.type; //y-x for reverse sorting order
@@ -75,11 +80,13 @@ namespace MMMonitor
                 return y.ship.tier - x.ship.tier;
             }
 
+            Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Visible);
             List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             MyTeam.Sort(PlayerComparer);
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
             EnemyTeam.Sort(PlayerComparer);
+            Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Hidden);
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
 
@@ -93,7 +100,7 @@ namespace MMMonitor
                 Tuple<double, double, double> FillCell(int row, int col, int colSpan, Func<List<Tuple<double, double>>, double> analysisMethod, Func<List<Player>, List<Tuple<double, double>>> dataSource, string labelText = null)
                 {
                     double wr = analysisMethod(dataSource(team));
-                    Tuple<double, double, double> hsvColor = new Tuple<double, double, double>(ColorStuff.WinrateToHue(wr), 1.0, 0.9);
+                    Tuple<double, double, double> hsvColor = double.IsNaN(wr) ? new Tuple<double, double, double>(0, 0, 1) : new Tuple<double, double, double>(ColorStuff.WinrateToHue(wr), 1.0, 0.9);
                     Dispatcher.Invoke(() =>
                     {
                         TextBlock text = new TextBlock

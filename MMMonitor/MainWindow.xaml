@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:MMMonitor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="815" Width="1200">
+        Title="MMM" Height="825" Width="1200">
     <Window.Resources>
         <Style TargetType="TextBlock" x:Key="TextBlockStyle">
             <Setter Property="FontSize" Value="14"/>
@@ -69,11 +70,25 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <DockPanel Grid.ColumnSpan="2">
-                <TextBlock DockPanel.Dock="Left" Text="Install Directory: "/>
-                <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click"/>
-                <TextBlock Name="InstallDirTextBlock"/>
-            </DockPanel>
+            <Border BorderBrush="Black" BorderThickness="1">
+                <TextBlock Text="MMM" FontSize="16" FontWeight="Bold" Margin="3" VerticalAlignment="Center"/>
+            </Border>
+            
+                <DockPanel HorizontalAlignment="Right" Name="LoadingPanel" Visibility="Hidden" Margin="5">
+                    <fa:ImageAwesome Icon="Refresh" Spin="True" Height="20" Width="20" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                    <TextBlock Text="Loading Player Info " VerticalAlignment="Center"/>
+                </DockPanel>
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Text="Install Directory:" VerticalAlignment="Center" Margin="3"/>
+                    <DockPanel DockPanel.Dock="Right" Margin="3">
+                        <Button DockPanel.Dock="Right" Content="Change" Click="ChangeInstallDirButton_Click" Padding="3"/>
+                        <Border BorderBrush="Black" BorderThickness="1" Background="Gainsboro">
+                            <TextBlock Name="InstallDirTextBlock" VerticalAlignment="Center"/>
+                        </Border>
+                    </DockPanel>
+                </DockPanel>
+            </Border>
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="Your Team" FontWeight="Bold"/>
             </Border>

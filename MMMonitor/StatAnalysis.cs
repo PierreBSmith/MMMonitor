@@ -15,18 +15,22 @@ namespace MMMonitor
 
         public static double Mean(List<Tuple<double, double>> WRsAndWeights)
         {
+            if (WRsAndWeights.Count == 0)
+                return double.NaN;
             return WRsAndWeights.Select(w => w.Item1).Average();
         }
 
         public static double WeightedMean(List<Tuple<double, double>> WRsAndWeights)
         {
+            if (WRsAndWeights.Count == 0)
+                return double.NaN;
             return WRsAndWeights.Select(w => w.Item1 * w.Item2).Sum() / WRsAndWeights.Select(w => w.Item2).Sum();
         }
 
         public static double Median(List<Tuple<double, double>> WRsAndWeights)
         {
             if (WRsAndWeights.Count == 0)
-                return 0;
+                return double.NaN;
             List<double> sortedWrs = WRsAndWeights.Select(w => w.Item1).OrderBy(w => w).ToList();
             int count = sortedWrs.Count;
             double median = sortedWrs[count / 2];
