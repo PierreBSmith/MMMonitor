@@ -7,20 +7,31 @@ using System.Net.Http;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+
 namespace MMMonitor
 {
     static class Fetcher
     {
-        const string APP_ID = "9215170717109877eac3240ae6393ed8";
+        const string APP_ID = "e097fb76afcd3bc68716bff7d1e7832c"; //"9215170717109877eac3240ae6393ed8";
 
         private static string HttpGet(string url)
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            using (var client = new HttpClient())
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(1)})
             {
-                var firstResponse = client.GetAsync(url).Result;
-                if (firstResponse.IsSuccessStatusCode)
-                    return firstResponse.Content.ReadAsStringAsync().Result;
+                for(int i = 0; i < 5; ++i)
+                {
+                    try
+                    {
+                        var firstResponse = client.GetAsync(url).Result;
+                        if (firstResponse.IsSuccessStatusCode)
+                            return firstResponse.Content.ReadAsStringAsync().Result;
+                        return null;
+                    }
+                    catch(Exception e) when (e.InnerException is HttpRequestException || e.InnerException is TaskCanceledException)
+                    {
+                    }
+                }
                 return null;
             }
         }

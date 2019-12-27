@@ -50,7 +50,7 @@ namespace MMMonitor
                 {
                     newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name, (string)data.vehicles[i].shipId);
                 }
-                catch
+                catch(Exception e)
                 {
                     newPlayer = new Player { userName = (string)data.vehicles[i].name };
                 }

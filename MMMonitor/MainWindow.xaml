@@ -73,11 +73,10 @@
             <Border BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="MMM" FontSize="16" FontWeight="Bold" Margin="3" VerticalAlignment="Center"/>
             </Border>
-            
-                <DockPanel HorizontalAlignment="Right" Name="LoadingPanel" Visibility="Hidden" Margin="5">
-                    <fa:ImageAwesome Icon="Refresh" Spin="True" Height="20" Width="20" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-                    <TextBlock Text="Loading Player Info " VerticalAlignment="Center"/>
-                </DockPanel>
+            <DockPanel HorizontalAlignment="Right" Name="LoadingPanel" Visibility="Hidden" Margin="5">
+                <fa:ImageAwesome Icon="Refresh" Spin="True" Height="20" Width="20" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                <TextBlock Text="Loading Player Info " VerticalAlignment="Center"/>
+            </DockPanel>
             <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Left" Text="Install Directory:" VerticalAlignment="Center" Margin="3"/>
@@ -89,11 +88,25 @@
                     </DockPanel>
                 </DockPanel>
             </Border>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Name="MyTeamAdvantageBarNegative"/>
+                    <ColumnDefinition Name="MyTeamAdvantageBar" Width="0*"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Grid.Column="1" Fill="LimeGreen"/>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Name="EnemyTeamAdvantageBar" Width="0*"/>
+                    <ColumnDefinition Name="EnemyTeamAdvantageBarNegative"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Fill="Red"/>
+            </Grid>
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
-                <TextBlock Text="Your Team" FontWeight="Bold"/>
+                <TextBlock Text="Your Team" FontWeight="Bold" Background="Transparent"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                <TextBlock Text="Enemy Team" FontWeight="Bold"/>
+                <TextBlock Text="Enemy Team" FontWeight="Bold" TextAlignment="Right" Background="Transparent"/>
             </Border>
             <Grid Grid.Row="2" Name="MyTeamInfoGrid">
                 <Grid.ColumnDefinitions>
@@ -127,7 +140,7 @@
                 <TextBlock Text="Players" FontWeight="Bold"/>
             </Border>
             <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                <TextBlock Text="Players" FontWeight="Bold"/>
+                <TextBlock Text="Players" FontWeight="Bold" TextAlignment="Right"/>
             </Border>
             <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="4">
                 <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>

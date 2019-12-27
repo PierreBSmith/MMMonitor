@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -15,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Path = System.IO.Path;
 
 namespace MMMonitor
 {
@@ -86,7 +88,17 @@ namespace MMMonitor
             MyTeam.Sort(PlayerComparer);
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
             EnemyTeam.Sort(PlayerComparer);
-            Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Hidden);
+            double advantage = StatAnalysis.Advantage(MyTeam, EnemyTeam);
+            double positiveAdvantage = Math.Max(0, advantage),
+                negativeAdvantage = Math.Max(0, -advantage);
+            Dispatcher.Invoke(() =>
+            {
+                LoadingPanel.Visibility = Visibility.Hidden;
+                MyTeamAdvantageBar.Width = new GridLength(positiveAdvantage, GridUnitType.Star);
+                MyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - positiveAdvantage), GridUnitType.Star);
+                EnemyTeamAdvantageBar.Width = new GridLength(negativeAdvantage, GridUnitType.Star);
+                EnemyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - negativeAdvantage), GridUnitType.Star);
+            });
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
 
