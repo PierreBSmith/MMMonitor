@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -15,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Path = System.IO.Path;
 
 namespace MMMonitor
 {
@@ -67,6 +69,11 @@ namespace MMMonitor
 
         private void LoadPlayers(string path)
         {
+            Task.Run(() => LoadPlayers2(path));
+        }
+
+        private void LoadPlayers2(string path)
+        {
             int PlayerComparer(Player x, Player y)
             {
                 int typeDiff = y.ship.type - x.ship.type; //y-x for reverse sorting order
@@ -75,28 +82,85 @@ namespace MMMonitor
                 return y.ship.tier - x.ship.tier;
             }
 
+            Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Visible);
             List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             MyTeam.Sort(PlayerComparer);
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
             EnemyTeam.Sort(PlayerComparer);
+            double advantage = StatAnalysis.Advantage(MyTeam, EnemyTeam);
+            double positiveAdvantage = Math.Max(0, advantage),
+                negativeAdvantage = Math.Max(0, -advantage);
+            Dispatcher.Invoke(() =>
+            {
+                LoadingPanel.Visibility = Visibility.Hidden;
+                MyTeamAdvantageBar.Width = new GridLength(positiveAdvantage, GridUnitType.Star);
+                MyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - positiveAdvantage), GridUnitType.Star);
+                EnemyTeamAdvantageBar.Width = new GridLength(negativeAdvantage, GridUnitType.Star);
+                EnemyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - negativeAdvantage), GridUnitType.Star);
+            });
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
 
-            void SetupTeamWrText(List<Player> team, TextBlock text)
+            void SetupTeamWrText(List<Player> team, Grid infoGrid)
             {
-                double wr = StatAnalysis.Potatometer(team);
-                Tuple<double, double, double> hsvColor = new Tuple<double, double, double>(ColorStuff.WinrateToHue(wr), 1.0, 0.9);
-                Dispatcher.Invoke(() =>
+                Func<List<Tuple<double, double>>, double>[] analysisMethods = { StatAnalysis.Mean, StatAnalysis.WeightedMean, StatAnalysis.Median };
+                Func<List<Player>, List<Tuple<double, double>>>[] dataSources = { StatAnalysis.CombinedWRs, StatAnalysis.PlayerWRs, StatAnalysis.ShipWRs };
+                String[] analysisNames = { "Average", "Weighted Average", "Median" },
+                    dataNames = { "Combined", "Player", "Ship" };
+
+                Tuple<double, double, double> FillCell(int row, int col, int colSpan, Func<List<Tuple<double, double>>, double> analysisMethod, Func<List<Player>, List<Tuple<double, double>>> dataSource, string labelText = null)
                 {
-                    text.Text = string.Format("Weighted WR: {0:P}", wr);
-                    text.Background = new SolidColorBrush(ColorStuff.ColorFromHSV(hsvColor));
-                    text.Foreground = new SolidColorBrush(ColorStuff.GetContrastingTextColor(hsvColor));
-                });
+                    double wr = analysisMethod(dataSource(team));
+                    Tuple<double, double, double> hsvColor = double.IsNaN(wr) ? new Tuple<double, double, double>(0, 0, 1) : new Tuple<double, double, double>(ColorStuff.WinrateToHue(wr), 1.0, 0.9);
+                    Dispatcher.Invoke(() =>
+                    {
+                        TextBlock text = new TextBlock
+                        {
+                            Text = string.Format(labelText + "{0:P}", wr),
+                            Background = new SolidColorBrush(ColorStuff.ColorFromHSV(hsvColor)),
+                            Foreground = new SolidColorBrush(ColorStuff.GetContrastingTextColor(hsvColor))
+                        };
+                        Grid.SetRow(text, row);
+                        Grid.SetColumn(text, col);
+                        Grid.SetColumnSpan(text, colSpan);
+                        infoGrid.Children.Add(text);
+                    });
+                    return hsvColor;
+                }
+
+                for (int i = 0; i < analysisMethods.Length; ++i)
+                {
+                    Tuple<double, double, double> bgColorHSV = null;
+                    for (int j = 0; j < dataSources.Length; ++j)
+                    {
+                        if (j == 0)
+                            bgColorHSV = FillCell(2 * i, 1, 2, analysisMethods[i], dataSources[j], dataNames[j] + ": ");
+                        else
+                            FillCell(2 * i + 1, j - 1, 1, analysisMethods[i], dataSources[j], dataNames[j] + ": ");
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        Border border = new Border { BorderThickness = new Thickness(1), BorderBrush = Brushes.Black };
+                        Grid.SetRow(border, i * 2);
+                        Grid.SetRowSpan(border, 2);
+                        Grid.SetColumnSpan(border, 2);
+                        Grid.SetZIndex(border, 1);
+                        infoGrid.Children.Add(border);
+                        TextBlock text = new TextBlock
+                        {
+                            Text = analysisNames[i] + " Win Rate", FontWeight = FontWeights.Bold,
+                            Background = new SolidColorBrush(ColorStuff.ColorFromHSV(bgColorHSV)),
+                            Foreground = new SolidColorBrush(ColorStuff.GetContrastingTextColor(bgColorHSV))
+                        };
+                        Grid.SetRow(text, i * 2);
+                        infoGrid.Children.Add(text);
+                    });
+                }
             }
 
-            SetupTeamWrText(MyTeam, MyTeamWrText);
-            SetupTeamWrText(EnemyTeam, EnemyTeamWrText);
+            SetupTeamWrText(MyTeam, MyTeamInfoGrid);
+            SetupTeamWrText(EnemyTeam, EnemyTeamInfoGrid);
         }
 
         private void TempArenaInfoCreated(object sender, FileSystemEventArgs e)
