@@ -32,6 +32,8 @@ namespace MMMonitor
             if (responseString == null)
                 return null;
             dynamic data = JsonConvert.DeserializeObject(responseString);
+            if ((int)data.meta.count == 0)
+                return null;
             string ID = (string)data.data[0].account_id;
 
             //Query for account stats
