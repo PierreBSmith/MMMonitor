@@ -9,6 +9,7 @@ namespace MMMonitor
     public class Player
     {
         public double winrate { get; set; }
+        public double carryScore { get; set; }
         public string userName { get; set; }
         public string ID { get; set; }
         public int relation { get; set; }

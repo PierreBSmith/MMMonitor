@@ -40,7 +40,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.ColumnSpan="2" Text="{Binding Path=userName}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
+                    <TextBlock Grid.Column="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}T{1} - {0}">
                                 <Binding Path="ship.name"/>
@@ -48,6 +48,7 @@
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
+                    <!--<TextBlock Grid.Column="3" Text="{Binding Path=carryScore, StringFormat=Carry Score: {0:f2}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>-->
                     <TextBlock Grid.Row="1" Text="{Binding Path=winrate, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=numGames, StringFormat=Battles: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Path=shipWr, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
@@ -137,10 +138,32 @@
                 </Grid.RowDefinitions>
             </Grid>
             <Border Grid.Row="3" BorderBrush="Black" BorderThickness="1">
-                <TextBlock Text="Players" FontWeight="Bold"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Players" FontWeight="Bold"/>
+                    <TextBlock Name="CarryAdvantage" Grid.Column="1"/>
+                    <TextBlock Name="MyTeamCarryScore" Grid.Column="2"/>
+                    <TextBlock Name="MyTeamThrowScore" Grid.Column="3"/>
+                </Grid>
             </Border>
             <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
-                <TextBlock Text="Players" FontWeight="Bold" TextAlignment="Right"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="EnemyTeamCarryScore" Grid.Column="0"/>
+                    <TextBlock Name="EnemyTeamThrowScore" Grid.Column="1"/>
+                    <TextBlock Name="ThrowAdvantage" Grid.Column="2"/>
+                    <TextBlock Text="Players" FontWeight="Bold" TextAlignment="Right" Grid.Column="3"/>
+                </Grid>
             </Border>
             <StackPanel Name="MyTeamPanel" Grid.Column="0" Grid.Row="4">
                 <ItemsControl ItemsSource="{Binding MyTeam}" ItemTemplate="{StaticResource PlayerDataTemplate}"/>

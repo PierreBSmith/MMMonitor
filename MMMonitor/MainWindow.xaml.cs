@@ -82,15 +82,24 @@ namespace MMMonitor
                 return y.ship.tier - x.ship.tier;
             }
 
+            List<Player> setTeamCarryScores(List<Player> team, List<double> carryScores)
+            {
+                team.ForEach((p) => p.carryScore = StatAnalysis.CarryScore(p));
+                return team;
+            }
+
             Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Visible);
             List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
             MyTeam.Sort(PlayerComparer);
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
             EnemyTeam.Sort(PlayerComparer);
-            double advantage = StatAnalysis.Advantage(MyTeam, EnemyTeam);
-            double positiveAdvantage = Math.Max(0, advantage),
-                negativeAdvantage = Math.Max(0, -advantage);
+            AdvInfo adv = StatAnalysis.Advantage(MyTeam, EnemyTeam);
+            MyTeam = setTeamCarryScores(MyTeam, adv.allyCarryScores);
+            EnemyTeam = setTeamCarryScores(EnemyTeam, adv.enemyCarryScores);
+            double positiveAdvantage = Math.Max(0, adv.advantage),
+                negativeAdvantage = Math.Max(0, -adv.advantage);
+
             Dispatcher.Invoke(() =>
             {
                 LoadingPanel.Visibility = Visibility.Hidden;
@@ -98,6 +107,11 @@ namespace MMMonitor
                 MyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - positiveAdvantage), GridUnitType.Star);
                 EnemyTeamAdvantageBar.Width = new GridLength(negativeAdvantage, GridUnitType.Star);
                 EnemyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - negativeAdvantage), GridUnitType.Star);
+                /*MyTeamCarryScore.Text = string.Format("Carry Index: {0:F2}", adv.allyTeamCarryIndex);
+                MyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.allyTeamStrength);
+                EnemyTeamCarryScore.Text = string.Format("Carry Index: {0:F2}", adv.enemyTeamCarryIndex);
+                EnemyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.enemyTeamStrength);
+                CarryAdvantage.Text = string.Format("Advantage: {0:F2}", adv.advantage);*/
             });
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));

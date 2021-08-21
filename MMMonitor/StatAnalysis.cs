@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace MMMonitor
 {
+    class AdvInfo
+    {
+        public List<double> allyCarryScores, enemyCarryScores;
+        public double allyTeamCarryIndex, enemyTeamCarryIndex,
+            allyTeamStrength, enemyTeamStrength, advantage;
+    }
+
     static class StatAnalysis
     {
         private static double Weight(int games, bool player)
@@ -49,50 +56,63 @@ namespace MMMonitor
             return team.Where(p => p.shipGames > 0).Select((p) => new Tuple<double, double>(p.shipWr, Weight(p.shipGames, false))).ToList();
         }
 
-        public static List<Tuple<double, double>> CombinedWRs(List<Player> team)
+        public static Tuple<double, double> CombinedWR(Player p)
         {
-            return team.Where(p => p.numGames > 0).Select((p) =>
-            {
-                double pWeight = Weight(p.numGames, true),
+            if (p.numGames == 0)
+                return new Tuple<double, double>(.5, 0);
+            double pWeight = Weight(p.numGames, true),
                     sWeight = Weight(p.shipGames, false);
-                double weightSum = pWeight + sWeight;
-                pWeight /= weightSum;
-                sWeight /= weightSum;
-                return new Tuple<double, double>(p.winrate * pWeight + p.shipWr * sWeight, weightSum);
-            }).ToList();
+            double weightSum = pWeight + sWeight;
+            pWeight /= weightSum;
+            sWeight /= weightSum;
+            return new Tuple<double, double>(p.winrate * pWeight + p.shipWr * sWeight, weightSum);
         }
 
-        public static double Advantage(List<Player> allyTeam, List<Player> enemyTeam)
+        public static List<Tuple<double, double>> CombinedWRs(List<Player> team)
         {
-            double sigmoid(double x)
-            {
-                return 2.0 / (1.0 + Math.Exp(-x)) - 1.0;
-            }
+            return team.Where(p => p.numGames > 0).Select((p) => CombinedWR(p)).ToList();
+        }
 
+        private static double sigmoid(double x)
+        {
+            return 2.0 / (1.0 + Math.Exp(-x)) - 1.0;
+        }
+
+        public static double CarryScore(Player p)
+        {
             double f(double x)
             {
-                return sigmoid(Math.Pow((x - .5) / .12, 3));
+                return sigmoid(20 * (x - .5));
             }
 
+            var cwr = CombinedWR(p);
+            return f(cwr.Item1) * cwr.Item2;
+        }
+        
+        public static List<double> CarryScores(List<Player> team)
+        {
+            return team.Select(CarryScore).ToList();
+        }
+
+        public static AdvInfo Advantage(List<Player> allyTeam, List<Player> enemyTeam)
+        {
             double g(double x, double y)
             {
                 if (x == 0 && y == 0)
                     return 0;
-                return sigmoid(3 * Math.Log(x / y));
+                return sigmoid(5 * Math.Log(x / y));
             }
 
-            var allyWrs = CombinedWRs(allyTeam);
-            var enemyWrs = CombinedWRs(enemyTeam);
-            var allyCarryScores = allyWrs.Select((w) => f(w.Item1) * w.Item2);
-            var enemyCarryScores = enemyWrs.Select((w) => f(w.Item1) * w.Item2);
-            double allyTeamCarryIndex = allyCarryScores.Where((s) => s > 0).Sum(),
-                enemyTeamCarryIndex = enemyCarryScores.Where((s) => s > 0).Sum(),
-                allyTeamThrowIndex = allyCarryScores.Where((s) => s < 0).Sum(),
-                enemyTeamThrowIndex = enemyCarryScores.Where((s) => s < 0).Sum();
-            double carryAdvantage = g(allyTeamCarryIndex, enemyTeamCarryIndex),
-                throwAdvantage = g(Math.Max(0, allyTeam.Count() - allyTeamThrowIndex), 
-                Math.Max(0, enemyTeam.Count() - enemyTeamThrowIndex));
-            return (carryAdvantage + throwAdvantage) / 2;
+            AdvInfo r = new AdvInfo();
+
+            r.allyCarryScores = CarryScores(allyTeam);
+            r.enemyCarryScores = CarryScores(enemyTeam);
+            r.allyTeamCarryIndex = r.allyCarryScores.Sum();
+            r.enemyTeamCarryIndex = r.enemyCarryScores.Sum();
+            r.allyTeamStrength = allyTeam.Count() + r.allyTeamCarryIndex;
+            r.enemyTeamStrength = enemyTeam.Count() + r.enemyTeamCarryIndex;
+            r.advantage = g(r.allyTeamStrength, r.enemyTeamStrength);
+            return r;
         }
     }
 }

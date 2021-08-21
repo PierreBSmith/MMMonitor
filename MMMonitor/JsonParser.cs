@@ -48,17 +48,27 @@ namespace MMMonitor
                 Player newPlayer;
                 try
                 {
-                    newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name, (string)data.vehicles[i].shipId);
+                    newPlayer = Fetcher.getPlayer((string)data.vehicles[i].name);
                 }
-                catch(Exception e)
+                catch(Exception)
                 {
                     newPlayer = new Player { userName = (string)data.vehicles[i].name };
                 }
+                try
+                {
+                    Fetcher.getShip(ref newPlayer, (string)data.vehicles[i].shipId);
+                }
+                catch(Exception)
+                {}
+
                 newPlayer.relation = (int)data.vehicles[i].relation;
                 string shipId = (string)data.vehicles[i].shipId;
                 if (!shipDict.ContainsKey(shipId))
                     shipDict = Fetcher.getShipDict(configDir, true);
-                newPlayer.ship = shipDict[shipId];
+                if (!shipDict.ContainsKey(shipId))
+                    newPlayer.ship = new Ship { name = "Unknown ship" };
+                else
+                    newPlayer.ship = shipDict[shipId];
                 players.Add(newPlayer);
             }
             return players;
