@@ -87,15 +87,10 @@ namespace MMMonitor
             {
                 return null;
             }
-
         }
 
-        public static Dictionary<string, Ship> getShipDict(string configDir, bool forceReload = false)
+        public static Dictionary<string, Ship> getShipDict()
         {
-            string filePath = Path.Combine(configDir, "ships.json");
-            if (!forceReload && File.Exists(filePath))
-                return JsonConvert.DeserializeObject<Dictionary<string, Ship>>(File.ReadAllText(filePath));
-            
             Dictionary<string, Ship> result = new Dictionary<string, Ship>();
             int page = 1;
             while(true)
@@ -107,7 +102,6 @@ namespace MMMonitor
                 if (page++ >= (int)output.meta.page_total)
                     break;
             }
-            File.WriteAllText(filePath, JsonConvert.SerializeObject(result));
             return result;
         }
     }

@@ -13,11 +13,12 @@ namespace MMMonitor
     {
         Dictionary<string, Ship> shipDict;
         string configDir;
+        string filePath { get => Path.Combine(configDir, "ships.json"); }
 
         public JsonParser(string configDir)
         {
             this.configDir = configDir;
-            shipDict = Fetcher.getShipDict(configDir);
+            loadShipDict();
         }
         
         public List<Player> parsePlayers(string path)
@@ -65,9 +66,7 @@ namespace MMMonitor
                 string shipId = (string)data.vehicles[i].shipId;
                 if (!shipDict.ContainsKey(shipId))
                 {
-                    Ship newShip = Fetcher.getShip(shipId);
-                    if (newShip != null)
-                        shipDict.Add(shipId, newShip);
+                    updateShipDict(shipId);
                 }
                 if (!shipDict.ContainsKey(shipId))
                     newPlayer.ship = new Ship { name = "Unknown ship" };
@@ -76,6 +75,32 @@ namespace MMMonitor
                 players.Add(newPlayer);
             }
             return players;
+        }
+
+        private void loadShipDict()
+        {
+            if (File.Exists(filePath))
+                shipDict = JsonConvert.DeserializeObject<Dictionary<string, Ship>>(File.ReadAllText(filePath));
+            else
+            {
+                shipDict = Fetcher.getShipDict();
+                saveShipDict();
+            }
+        }
+
+        private void saveShipDict()
+        {
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(shipDict));
+        }
+
+        private void updateShipDict(string shipId)
+        {
+            Ship newShip = Fetcher.getShip(shipId);
+            if (newShip != null)
+            {
+                shipDict.Add(shipId, newShip);
+                saveShipDict();
+            }
         }
     }
 }
