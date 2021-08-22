@@ -63,7 +63,7 @@ namespace MMMonitor
             };
         }
         
-        public static void getShip(ref Player player, string shipID)
+        public static void getPlayerShip(ref Player player, string shipID)
         {
             //Query for ship stats
             string responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + "&account_id=" + player.ID + "&ship_id=" + shipID);
@@ -73,6 +73,21 @@ namespace MMMonitor
             player.shipGames = (shipsStuff.meta.hidden == null && shipsStuff.data.ID != null) ? (int)shipsStuff.data.ID[0].pvp.battles : 0;
             player.shipWr = (shipsStuff.meta.hidden == null && shipsStuff.data.ID != null && (int)shipsStuff.data.ID[0].pvp.battles > 0) ? ((double)shipsStuff.data.ID[0].pvp.wins / (int)shipsStuff.data.ID[0].pvp.battles) : 0;
             
+        }
+
+        public static Ship getShip(string shipId)
+        {
+            try
+            {
+                string resp = HttpGet("https://api.worldofwarships.com/wows/encyclopedia/ships/?ship_id=" + shipId + "&application_id=" + APP_ID + "&fields=name%2C+type%2C+tier");
+                dynamic output = JsonConvert.DeserializeObject(resp);
+                return output.data.ToObject<Dictionary<string, Ship>>()[shipId];
+            }
+            catch
+            {
+                return null;
+            }
+
         }
 
         public static Dictionary<string, Ship> getShipDict(string configDir, bool forceReload = false)

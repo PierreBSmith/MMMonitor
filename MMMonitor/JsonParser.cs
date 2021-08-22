@@ -56,7 +56,7 @@ namespace MMMonitor
                 }
                 try
                 {
-                    Fetcher.getShip(ref newPlayer, (string)data.vehicles[i].shipId);
+                    Fetcher.getPlayerShip(ref newPlayer, (string)data.vehicles[i].shipId);
                 }
                 catch(Exception)
                 {}
@@ -64,7 +64,11 @@ namespace MMMonitor
                 newPlayer.relation = (int)data.vehicles[i].relation;
                 string shipId = (string)data.vehicles[i].shipId;
                 if (!shipDict.ContainsKey(shipId))
-                    shipDict = Fetcher.getShipDict(configDir, true);
+                {
+                    Ship newShip = Fetcher.getShip(shipId);
+                    if (newShip != null)
+                        shipDict.Add(shipId, newShip);
+                }
                 if (!shipDict.ContainsKey(shipId))
                     newPlayer.ship = new Ship { name = "Unknown ship" };
                 else
