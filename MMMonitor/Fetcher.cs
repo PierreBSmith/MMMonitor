@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
 using System.Net;
-using System.IO;
-using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace MMMonitor
 {
@@ -58,25 +56,41 @@ namespace MMMonitor
             if (responseString == null)
                 throw new InvalidResponse("Could not get player stats, request returned null");
             responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
-            dynamic output = JsonConvert.DeserializeObject(responseString);
-            if (output.data.ID == null)
+            dynamic playerData = JsonConvert.DeserializeObject(responseString);
+            if (playerData.data.ID == null)
                 throw new InvalidResponse("No player data");
+
+            //Get clan tag
+            string clanTag = "";
+            try
+            {
+                responseString = HttpGet(string.Format("https://api.worldofwarships.com/wows/clans/accountinfo/?account_id={0}&application_id={1}&fields=clan&extra=clan", ID, APP_ID));
+                responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
+                if (responseString != null)
+                {
+                    dynamic clanData = JsonConvert.DeserializeObject(responseString);
+                    if (clanData.data.ID.clan != null)
+                        clanTag = "[" + clanData.data.ID.clan.tag + "]";
+                }
+            }
+            catch
+            { }
 
             Player player = new Player
             {
-                userName = (string)output.data.ID.nickname,
+                userName = clanTag + (string)playerData.data.ID.nickname,
                 ID = ID
             };
 
-            if (output.meta.hidden.ToObject<List<string>>()?.Contains(ID) == true)
+            if (playerData.meta.hidden.ToObject<List<string>>()?.Contains(ID) == true)
             {
                 player.hidden = true;
             }
             else
             {
                 player.hidden = false;
-                player.winrate = (double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles;
-                player.numGames = (int)output.data.ID.statistics.pvp.battles;
+                player.winrate = (double)playerData.data.ID.statistics.pvp.wins / (double)playerData.data.ID.statistics.pvp.battles;
+                player.numGames = (int)playerData.data.ID.statistics.pvp.battles;
             }
 
             return player;
