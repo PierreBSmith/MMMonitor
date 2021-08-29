@@ -49,10 +49,54 @@
                         </TextBlock.Text>
                     </TextBlock>
                     <!--<TextBlock Grid.Column="3" Text="{Binding Path=carryScore, StringFormat=Carry Score: {0:f2}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>-->
-                    <TextBlock Grid.Row="1" Text="{Binding Path=winrate, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=numGames, StringFormat=Battles: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Path=shipWr, StringFormat=Win Rate: {0:p}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=shipGames, StringFormat=Battles: {0:d}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>
+                    <TextBlock Grid.Row="1" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}">
+                                <Setter Property="Text" Value="{Binding Path=winrate, StringFormat=Win Rate: {0:p}}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=hidden}" Value="True">
+                                        <Setter Property="Text" Value="Stats Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}">
+                                <Setter Property="Text" Value="{Binding Path=numGames, StringFormat=Battles: {0:d}}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=hidden}" Value="True">
+                                        <Setter Property="Text" Value=""/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}">
+                                <Setter Property="Text" Value="{Binding Path=shipWr, StringFormat=Win Rate: {0:p}}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=hidden}" Value="True">
+                                        <Setter Property="Text" Value=""/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="3" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}">
+                                <Setter Property="Text" Value="{Binding Path=shipGames, StringFormat=Battles: {0:d}}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=hidden}" Value="True">
+                                        <Setter Property="Text" Value=""/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Grid>
             </Border>
         </DataTemplate>

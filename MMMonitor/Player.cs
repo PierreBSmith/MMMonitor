@@ -17,6 +17,7 @@ namespace MMMonitor
         public Ship ship { get; set; } = new Ship();
         public int shipGames { get; set; }
         public double shipWr { get; set; }
+        public bool hidden { get; set; }
     }
 
     public enum ShipType { Destroyer, Cruiser, Battleship, AirCarrier };

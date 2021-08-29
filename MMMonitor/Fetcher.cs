@@ -10,6 +10,12 @@ using Newtonsoft.Json;
 
 namespace MMMonitor
 {
+    class InvalidResponse: Exception
+    {
+        public InvalidResponse(string message):base(message)
+        {}
+    }
+
     static class Fetcher
     {
         const string APP_ID = "e097fb76afcd3bc68716bff7d1e7832c"; //"9215170717109877eac3240ae6393ed8";
@@ -39,28 +45,41 @@ namespace MMMonitor
         public static Player getPlayer(string name)
         {
             //Use name to get player ID
-            string responseString = HttpGet("https://api.worldofwarships.com/wows/account/list/?application_id=" + APP_ID + "&search=" + name);
+            string responseString = HttpGet("https://api.worldofwarships.com/wows/account/list/?application_id=" + APP_ID + "&type=exact&search=" + name);
             if (responseString == null)
-                throw new Exception();
+                throw new InvalidResponse("Could not get player ID, request returned null");
             dynamic data = JsonConvert.DeserializeObject(responseString);
             if ((int)data.meta.count == 0)
-                throw new Exception();
+                throw new InvalidResponse("Could not find player");
             string ID = (string)data.data[0].account_id;
 
             //Query for account stats
             responseString = HttpGet("https://api.worldofwarships.com/wows/account/info/?application_id=" + APP_ID + "&account_id=" + ID);
             if (responseString == null)
-                throw new Exception();
+                throw new InvalidResponse("Could not get player stats, request returned null");
             responseString = responseString.Replace("\"" + ID + "\"", "\"ID\"");
             dynamic output = JsonConvert.DeserializeObject(responseString);
-            
-            return new Player
+            if (output.data.ID == null)
+                throw new InvalidResponse("No player data");
+
+            Player player = new Player
             {
-                winrate = (output.meta.hidden == null && output.data.ID != null) ? ((double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles) : 0,
-                numGames = (output.meta.hidden == null && output.data.ID != null) ? (int)output.data.ID.statistics.pvp.battles : 0,
                 userName = (string)output.data.ID.nickname,
                 ID = ID
             };
+
+            if (output.meta.hidden.ToObject<List<string>>()?.Contains(ID) == true)
+            {
+                player.hidden = true;
+            }
+            else
+            {
+                player.hidden = false;
+                player.winrate = (double)output.data.ID.statistics.pvp.wins / (double)output.data.ID.statistics.pvp.battles;
+                player.numGames = (int)output.data.ID.statistics.pvp.battles;
+            }
+
+            return player;
         }
         
         public static void getPlayerShip(ref Player player, string shipID)
