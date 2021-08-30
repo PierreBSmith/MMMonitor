@@ -42,6 +42,20 @@ namespace MMMonitor
                 }
             }
             dynamic data = JsonConvert.DeserializeObject(gameData);
+            
+            List<Tuple<string, string, int>> playerInfo = new List<Tuple<string, string, int>>();
+            HashSet<string> unknownShipIds = new HashSet<string>();
+            foreach(dynamic vehicle in data.vehicles)
+            {
+                playerInfo.Add(new Tuple<string, string, int>((string)vehicle.name, (string)vehicle.shipId, (int)vehicle.relation));
+                string shipId = (string)vehicle.shipId;
+                if (!shipDict.ContainsKey(shipId))
+                    unknownShipIds.Add(shipId);
+            }
+            updateShipDict(unknownShipIds.ToList());
+            players = Fetcher.getPlayers(playerInfo, shipDict);
+
+            /*
             for (int i = 0; i < data.vehicles.Count; i++)
             {
                 if (((string)data.vehicles[i].name).StartsWith(":"))
@@ -73,19 +87,24 @@ namespace MMMonitor
                 else
                     newPlayer.ship = shipDict[shipId];
                 players.Add(newPlayer);
-            }
+            }*/
             return players;
         }
 
-        private void loadShipDict()
+        private void loadShipDict(bool forceReload = false)
         {
-            if (File.Exists(filePath))
-                shipDict = JsonConvert.DeserializeObject<Dictionary<string, Ship>>(File.ReadAllText(filePath));
-            else
+            if (File.Exists(filePath) && !forceReload)
             {
-                shipDict = Fetcher.getShipDict();
-                saveShipDict();
+                try
+                {
+                    shipDict = JsonConvert.DeserializeObject<Dictionary<string, Ship>>(File.ReadAllText(filePath), new JsonSerializerSettings { MissingMemberHandling = MissingMemberHandling.Error });
+                    return;
+                }
+                catch(JsonSerializationException)
+                { }
             }
+            shipDict = Fetcher.getShipDict();
+            saveShipDict();
         }
 
         private void saveShipDict()
@@ -93,14 +112,20 @@ namespace MMMonitor
             File.WriteAllText(filePath, JsonConvert.SerializeObject(shipDict));
         }
 
-        private void updateShipDict(string shipId)
+        private void updateShipDict(List<string> shipIds)
         {
-            Ship newShip = Fetcher.getShip(shipId);
-            if (newShip != null)
+            Dictionary<string, Ship> newShips = Fetcher.getShips(shipIds);
+            bool save = false;
+            foreach(KeyValuePair<string, Ship> pair in newShips)
             {
-                shipDict.Add(shipId, newShip);
-                saveShipDict();
+                if(pair.Value != null)
+                {
+                    shipDict.Add(pair.Key, pair.Value);
+                    save = true;
+                }
             }
+            if (save)
+                saveShipDict();
         }
     }
 }

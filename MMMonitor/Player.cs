@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace MMMonitor
 {
@@ -24,9 +25,16 @@ namespace MMMonitor
 
     public class Ship
     {
+        [JsonProperty(Required = Required.Always)]
         public string name { get; set; }
-        public int tier { get; set; }
-        public ShipType type { get; set; }
         
+        [JsonProperty(Required = Required.Always)] 
+        public int tier { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public ShipType type { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string ship_id { get; set; }
     }
 }
