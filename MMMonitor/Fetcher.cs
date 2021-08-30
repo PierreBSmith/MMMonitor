@@ -53,6 +53,7 @@ namespace MMMonitor
 
         public static List<Player> getPlayers(List<Tuple<string, string, int>> playerInfoList, Dictionary<string, Ship> shipDict)
         {
+            playerInfoList = playerInfoList.Where(x => !x.Item1.StartsWith(":")).ToList(); //remove bots
             Dictionary<string, Player> playerNameDict = new Dictionary<string, Player>();
             foreach (Tuple<string, string, int> tuple in playerInfoList)
             {
