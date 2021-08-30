@@ -127,7 +127,7 @@ namespace MMMonitor
             {
                 if(clanDict.ContainsKey(pair.Key))
                 {
-                    if (clanDict[pair.Key].clan != null)
+                    if (clanDict[pair.Key]?.clan != null)
                         pair.Value.userName = "[" + clanDict[pair.Key].clan.tag + "] " + pair.Value.userName;
                 }
                 else
@@ -138,7 +138,8 @@ namespace MMMonitor
 
             foreach(Player player in playerIdDict.Values)
             {
-                getPlayerShip(player, player.ship.ship_id);
+                if(player.ship.ship_id != null)
+                    getPlayerShip(player, player.ship.ship_id);
             }
 
             return playerIdDict.Values.ToList();
@@ -205,6 +206,8 @@ namespace MMMonitor
         public static void getPlayerShip(Player player, string shipID)
         {
             //Query for ship stats
+            if (shipID == null)
+                return;
             string responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + "&account_id=" + player.ID + "&ship_id=" + shipID + "&fields=pvp.battles%2Cpvp.wins");
             responseString = responseString.Replace("\"" + player.ID + "\"", "\"ID\"");
             dynamic shipsStuff = JsonConvert.DeserializeObject(responseString);
