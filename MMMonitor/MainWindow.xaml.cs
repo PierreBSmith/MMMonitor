@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Controls;
-using System.Windows.Shapes;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Path = System.IO.Path;
@@ -49,9 +43,9 @@ namespace MMMonitor
             if (Directory.Exists(Path.Combine(InstallDirTextBlock.Text, "replays")))
             {
                 watcher = new FileSystemWatcher(Path.Combine(InstallDirTextBlock.Text, "replays"), "tempArenaInfo.json");
+                watcher.EnableRaisingEvents = true;
                 if (File.Exists(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json")))
                     LoadPlayers(Path.Combine(InstallDirTextBlock.Text, "replays", "tempArenaInfo.json"));
-                watcher.EnableRaisingEvents = true;
             }
             else
             {
@@ -59,7 +53,6 @@ namespace MMMonitor
                 watcher.Filter = "tempArenaInfo.json";
             }
             watcher.Created += TempArenaInfoCreated;
-            
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -69,7 +62,21 @@ namespace MMMonitor
 
         private void LoadPlayers(string path)
         {
-            Task.Run(() => LoadPlayers2(path));
+            Task.Run(() => {
+#if !DEBUG
+                try
+                {
+#endif
+                    LoadPlayers2(path);
+#if !DEBUG
+                }
+                catch (Exception e)
+                {
+                    Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Collapsed);
+                    System.Windows.MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+#endif
+            });
         }
 
         private void LoadPlayers2(string path)
@@ -237,11 +244,11 @@ namespace MMMonitor
         public static Color ColorFromHSV(Tuple<double, double, double> input)
         {
             double hue = input.Item1, saturation = input.Item2, value = input.Item3;
-            int hi = (int)(Math.Floor(hue / 60)) % 6;
+            int hi = (int)Math.Floor(hue / 60) % 6;
             double f = hue / 60 - Math.Floor(hue / 60);
 
-            value = value * 255;
-            byte v = (byte)(value);
+            value *= 255;
+            byte v = (byte)value;
             byte p = (byte)(value * (1 - saturation));
             byte q = (byte)(value * (1 - f * saturation));
             byte t = (byte)(value * (1 - (1 - f) * saturation));
@@ -280,7 +287,7 @@ namespace MMMonitor
             double winrate = usePlayerStats ? player.winrate : player.shipWr;
             int games = usePlayerStats ? player.numGames : player.shipGames;
             double hue = WinrateToHue(winrate);
-            double sat = Math.Min(1, Math.Sqrt(games / (usePlayerStats ? 10000.0 : 500.0)));
+            double sat = StatAnalysis.Weight(games, usePlayerStats);
             return new Tuple<double, double, double>(hue, sat, .9);
         }
 

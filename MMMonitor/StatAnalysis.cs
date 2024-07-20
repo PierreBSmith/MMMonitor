@@ -15,9 +15,10 @@ namespace MMMonitor
 
     static class StatAnalysis
     {
-        private static double Weight(int games, bool player)
+
+        public static double Weight(int games, bool player)
         {
-            return Math.Min(1, Math.Sqrt(games / (player ? 10000.0 : 500.0)));
+            return Math.Min(1, Math.Sqrt(games / (player ? 6000.0 : 300.0)));
         }
 
         public static double Mean(List<Tuple<double, double>> WRsAndWeights)

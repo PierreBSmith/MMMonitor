@@ -23,9 +23,10 @@ namespace MMMonitor
 
         private static string HttpGet(string url)
         {
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10)})
             {
+                Exception exception = null;
                 for(int i = 0; i < 5; ++i)
                 {
                     try
@@ -37,9 +38,10 @@ namespace MMMonitor
                     }
                     catch(Exception e) when (e.InnerException is HttpRequestException || e.InnerException is TaskCanceledException)
                     {
+                        exception = e;
                     }
                 }
-                return null;
+                throw exception;
             }
         }
 
@@ -122,21 +124,25 @@ namespace MMMonitor
                 APP_ID, idsQueryList));
             if (responseString == null)
                 MessageBox.Show("Clan data request returned null");
-            dynamic clanData = JsonConvert.DeserializeObject(responseString);
-            Dictionary<string, dynamic> clanDict = clanData.data.ToObject<Dictionary<string, dynamic>>();
-            foreach(KeyValuePair<string, Player> pair in playerIdDict)
+            else
             {
-                if(clanDict.ContainsKey(pair.Key))
+                dynamic clanData = JsonConvert.DeserializeObject(responseString);
+                Dictionary<string, dynamic> clanDict = clanData.data.ToObject<Dictionary<string, dynamic>>();
+                foreach(KeyValuePair<string, Player> pair in playerIdDict)
                 {
-                    if (clanDict[pair.Key]?.clan != null)
-                        pair.Value.userName = "[" + clanDict[pair.Key].clan.tag + "] " + pair.Value.userName;
-                }
-                else
-                {
-                    MessageBox.Show("Missing clan data for player" + pair.Value.userName);
+                    if(clanDict.ContainsKey(pair.Key))
+                    {
+                        if (clanDict[pair.Key]?.clan != null)
+                            pair.Value.userName = "[" + clanDict[pair.Key].clan.tag + "] " + pair.Value.userName;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Missing clan data for player" + pair.Value.userName);
+                    }
                 }
             }
 
+            //Get player's ship stats
             foreach(Player player in playerIdDict.Values)
             {
                 if(player.ship.ship_id != null)
@@ -235,19 +241,25 @@ namespace MMMonitor
 
         public static Dictionary<string, Ship> getShips(List<string> shipIds)
         {
-            try
+            if(shipIds.Count > 0)
             {
-                string responseString = HttpGet(string.Format("https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={0}&ship_id={1}&fields={2}",
-                APP_ID, makeQueryList(shipIds), SHIP_FIELDS));
-                dynamic output = JsonConvert.DeserializeObject(responseString);
-                return output.data.ToObject<Dictionary<string, Ship>>();
+                try
+                {
+                    string responseString = HttpGet(string.Format("https://api.worldofwarships.com/wows/encyclopedia/ships/?application_id={0}&ship_id={1}&fields={2}",
+                    APP_ID, makeQueryList(shipIds), SHIP_FIELDS));
+                    dynamic output = JsonConvert.DeserializeObject(responseString);
+                    return output.data.ToObject<Dictionary<string, Ship>>();
+                }
+                catch
+                {
+
+                }
             }
-            catch
-            {
-                return new Dictionary<string, Ship>();
-            }
+            return new Dictionary<string, Ship>();
         }
 
+        /*
+        //Unused because ships are now queried as needed, instead of all at once
         public static Dictionary<string, Ship> getShipDict()
         {
             Dictionary<string, Ship> result = new Dictionary<string, Ship>();
@@ -264,5 +276,6 @@ namespace MMMonitor
             }
             return result;
         }
+        */
     }
 }

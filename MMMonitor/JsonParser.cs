@@ -52,7 +52,8 @@ namespace MMMonitor
                 if (!shipDict.ContainsKey(shipId))
                     unknownShipIds.Add(shipId);
             }
-            updateShipDict(unknownShipIds.ToList());
+            if(unknownShipIds.Count > 0)
+                updateShipDict(unknownShipIds.ToList());
             players = Fetcher.getPlayers(playerInfo, shipDict);
 
             /*
@@ -103,8 +104,7 @@ namespace MMMonitor
                 catch(JsonSerializationException)
                 { }
             }
-            shipDict = Fetcher.getShipDict();
-            saveShipDict();
+            shipDict = new Dictionary<string, Ship>();
         }
 
         private void saveShipDict()
