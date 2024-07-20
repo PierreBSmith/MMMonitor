@@ -24,7 +24,7 @@ namespace MMMonitor
         private static string HttpGet(string url)
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(1)})
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10)})
             {
                 for(int i = 0; i < 5; ++i)
                 {
@@ -260,6 +260,7 @@ namespace MMMonitor
                 result = result.Concat(dict).ToDictionary(x => x.Key, x => x.Value);
                 if (page++ >= (int)output.meta.page_total)
                     break;
+                System.Threading.Thread.Sleep(100);
             }
             return result;
         }

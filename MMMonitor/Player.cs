@@ -21,7 +21,7 @@ namespace MMMonitor
         public bool hidden { get; set; }
     }
 
-    public enum ShipType { Destroyer, Cruiser, Battleship, AirCarrier };
+    public enum ShipType { Destroyer, Cruiser, Battleship, AirCarrier, Submarine };
 
     public class Ship
     {
