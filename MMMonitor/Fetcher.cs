@@ -21,17 +21,25 @@ namespace MMMonitor
 
         const string SHIP_FIELDS = "name%2Ctype%2Ctier%2Cship_id";
 
+        static int REQ_WAIT_TIME = 150;
+
+        private static DateTime lastReqTime = DateTime.Now - TimeSpan.FromMilliseconds(REQ_WAIT_TIME);
+
         private static string HttpGet(string url)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10)})
+            using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30)})
             {
                 Exception exception = null;
-                for(int i = 0; i < 5; ++i)
+                for(int i = 0; i < 2; ++i)
                 {
+                    int timeSinceReq = (int)(DateTime.Now - lastReqTime).TotalMilliseconds;
+                    if(timeSinceReq < REQ_WAIT_TIME)
+                        System.Threading.Thread.Sleep(REQ_WAIT_TIME - timeSinceReq);
                     try
                     {
                         var firstResponse = client.GetAsync(url).Result;
+                        lastReqTime = DateTime.Now;
                         if (firstResponse.IsSuccessStatusCode)
                             return firstResponse.Content.ReadAsStringAsync().Result;
                         return null;
@@ -40,6 +48,7 @@ namespace MMMonitor
                     {
                         exception = e;
                     }
+                    lastReqTime = DateTime.Now;
                 }
                 throw exception;
             }

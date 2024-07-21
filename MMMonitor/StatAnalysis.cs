@@ -8,9 +8,7 @@ namespace MMMonitor
 {
     class AdvInfo
     {
-        public List<double> allyCarryScores, enemyCarryScores;
-        public double allyTeamCarryIndex, enemyTeamCarryIndex,
-            allyTeamStrength, enemyTeamStrength, advantage;
+        public double allyTeamCarryIndex, enemyTeamCarryIndex, advantage;
     }
 
     static class StatAnalysis
@@ -60,13 +58,13 @@ namespace MMMonitor
         public static Tuple<double, double> CombinedWR(Player p)
         {
             if (p.numGames == 0)
-                return new Tuple<double, double>(.5, 0);
+                return new Tuple<double, double>(0.45, 0.0);
             double pWeight = Weight(p.numGames, true),
                     sWeight = Weight(p.shipGames, false);
             double weightSum = pWeight + sWeight;
             pWeight /= weightSum;
             sWeight /= weightSum;
-            return new Tuple<double, double>(p.winrate * pWeight + p.shipWr * sWeight, weightSum);
+            return new Tuple<double, double>(p.winrate * pWeight + p.shipWr * sWeight, weightSum / 2.0);
         }
 
         public static List<Tuple<double, double>> CombinedWRs(List<Player> team)
@@ -81,6 +79,7 @@ namespace MMMonitor
 
         public static double CarryScore(Player p)
         {
+            /*
             double f(double x)
             {
                 return sigmoid(20 * (x - .5));
@@ -88,31 +87,34 @@ namespace MMMonitor
 
             var cwr = CombinedWR(p);
             return f(cwr.Item1) * cwr.Item2;
-        }
-        
-        public static List<double> CarryScores(List<Player> team)
-        {
-            return team.Select(CarryScore).ToList();
+            */
+
+            var cwr = CombinedWR(p);
+            double slope = 12.0, wr = cwr.Item1, weight = cwr.Item2;
+            return weight * (slope * (wr - .5) + .5) + .5;
         }
 
         public static AdvInfo Advantage(List<Player> allyTeam, List<Player> enemyTeam)
         {
             double g(double x, double y)
             {
-                if (x == 0 && y == 0)
-                    return 0;
-                return sigmoid(5 * Math.Log(x / y));
+                x = Math.Max(0.001, x);
+                y = Math.Max(0.001, y);
+                return sigmoid(4 * Math.Log(x / y));
+            }
+
+            void setTeamCarryScores(List<Player> team)
+            {
+                team.ForEach((p) => p.carryScore = CarryScore(p));
             }
 
             AdvInfo r = new AdvInfo();
 
-            r.allyCarryScores = CarryScores(allyTeam);
-            r.enemyCarryScores = CarryScores(enemyTeam);
-            r.allyTeamCarryIndex = r.allyCarryScores.Sum();
-            r.enemyTeamCarryIndex = r.enemyCarryScores.Sum();
-            r.allyTeamStrength = allyTeam.Count() + r.allyTeamCarryIndex;
-            r.enemyTeamStrength = enemyTeam.Count() + r.enemyTeamCarryIndex;
-            r.advantage = g(r.allyTeamStrength, r.enemyTeamStrength);
+            setTeamCarryScores(allyTeam);
+            setTeamCarryScores(enemyTeam);
+            r.allyTeamCarryIndex = allyTeam.Select((p) => p.carryScore).Sum();
+            r.enemyTeamCarryIndex = enemyTeam.Select((p) => p.carryScore).Sum();
+            r.advantage = g(r.allyTeamCarryIndex, r.enemyTeamCarryIndex);
             return r;
         }
     }

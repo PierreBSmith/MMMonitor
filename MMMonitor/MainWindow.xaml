@@ -39,8 +39,8 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.ColumnSpan="2" Text="{Binding Path=userName}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
-                    <TextBlock Grid.Column="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
+                    <TextBlock Grid.ColumnSpan="1" Text="{Binding Path=userName}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
+                    <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}T{1} - {0}">
                                 <Binding Path="ship.name"/>
@@ -48,7 +48,7 @@
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
-                    <!--<TextBlock Grid.Column="3" Text="{Binding Path=carryScore, StringFormat=Carry Score: {0:f2}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=false}"/>-->
+                    <TextBlock Grid.Column="1" Text="{Binding Path=carryScore, StringFormat=Performance Score: {0:f2}}" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}"/>
                     <TextBlock Grid.Row="1" Foreground="{Binding Converter={StaticResource colorContraster}, ConverterParameter=true}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource ResourceKey=TextBlockStyle}">
@@ -150,6 +150,7 @@
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="Your Team" FontWeight="Bold" Background="Transparent"/>
             </Border>
+            <TextBlock Name="CarryAdvantage" Grid.Row="1" HorizontalAlignment="Right"/>
             <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="Enemy Team" FontWeight="Bold" TextAlignment="Right" Background="Transparent"/>
             </Border>
@@ -190,9 +191,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Players" FontWeight="Bold"/>
-                    <TextBlock Name="CarryAdvantage" Grid.Column="1"/>
-                    <TextBlock Name="MyTeamCarryScore" Grid.Column="2"/>
-                    <TextBlock Name="MyTeamThrowScore" Grid.Column="3"/>
+                    <TextBlock Name="MyTeamCarryScore" Grid.Column="1"/>
                 </Grid>
             </Border>
             <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
@@ -203,8 +202,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Name="EnemyTeamCarryScore" Grid.Column="0"/>
-                    <TextBlock Name="EnemyTeamThrowScore" Grid.Column="1"/>
+                    <TextBlock Name="EnemyTeamCarryScore" Grid.Column="1"/>
                     <TextBlock Name="ThrowAdvantage" Grid.Column="2"/>
                     <TextBlock Text="Players" FontWeight="Bold" TextAlignment="Right" Grid.Column="3"/>
                 </Grid>

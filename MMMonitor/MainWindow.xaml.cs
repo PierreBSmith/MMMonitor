@@ -63,19 +63,15 @@ namespace MMMonitor
         private void LoadPlayers(string path)
         {
             Task.Run(() => {
-#if !DEBUG
                 try
                 {
-#endif
                     LoadPlayers2(path);
-#if !DEBUG
                 }
                 catch (Exception e)
                 {
                     Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Collapsed);
                     System.Windows.MessageBox.Show(e.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-#endif
             });
         }
 
@@ -89,12 +85,6 @@ namespace MMMonitor
                 return y.ship.tier - x.ship.tier;
             }
 
-            List<Player> setTeamCarryScores(List<Player> team, List<double> carryScores)
-            {
-                team.ForEach((p) => p.carryScore = StatAnalysis.CarryScore(p));
-                return team;
-            }
-
             Dispatcher.Invoke(() => LoadingPanel.Visibility = Visibility.Visible);
             List<Player> players = parser.parsePlayers(path);
             MyTeam = players.Where((Player p) => p.relation <= 1).ToList();
@@ -102,8 +92,6 @@ namespace MMMonitor
             EnemyTeam = players.Where((Player p) => p.relation == 2).ToList();
             EnemyTeam.Sort(PlayerComparer);
             AdvInfo adv = StatAnalysis.Advantage(MyTeam, EnemyTeam);
-            MyTeam = setTeamCarryScores(MyTeam, adv.allyCarryScores);
-            EnemyTeam = setTeamCarryScores(EnemyTeam, adv.enemyCarryScores);
             double positiveAdvantage = Math.Max(0, adv.advantage),
                 negativeAdvantage = Math.Max(0, -adv.advantage);
 
@@ -114,11 +102,11 @@ namespace MMMonitor
                 MyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - positiveAdvantage), GridUnitType.Star);
                 EnemyTeamAdvantageBar.Width = new GridLength(negativeAdvantage, GridUnitType.Star);
                 EnemyTeamAdvantageBarNegative.Width = new GridLength(Math.Max(0, 1 - negativeAdvantage), GridUnitType.Star);
-                /*MyTeamCarryScore.Text = string.Format("Carry Index: {0:F2}", adv.allyTeamCarryIndex);
-                MyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.allyTeamStrength);
-                EnemyTeamCarryScore.Text = string.Format("Carry Index: {0:F2}", adv.enemyTeamCarryIndex);
-                EnemyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.enemyTeamStrength);
-                CarryAdvantage.Text = string.Format("Advantage: {0:F2}", adv.advantage);*/
+                MyTeamCarryScore.Text = string.Format("Total Perf. Score: {0:F2}", adv.allyTeamCarryIndex);
+                //MyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.allyTeamStrength);
+                EnemyTeamCarryScore.Text = string.Format("Total Perf. Score: {0:F2}", adv.enemyTeamCarryIndex);
+                //EnemyTeamThrowScore.Text = string.Format("Strength: {0:F2}", adv.enemyTeamStrength);
+                CarryAdvantage.Text = string.Format("Advantage: {0:F2}", adv.advantage);
             });
             NotifyPropertyChanged(nameof(MyTeam));
             NotifyPropertyChanged(nameof(EnemyTeam));
@@ -293,7 +281,7 @@ namespace MMMonitor
 
         public static Color GetContrastingTextColor(Tuple<double, double, double> bgColor)
         {
-            if (bgColor.Item2 < .5 || bgColor.Item1 < 200)
+            if (bgColor.Item2 < .5 || (bgColor.Item1 < 200 && bgColor.Item1 > 20))
                 return Colors.Black;
             return Colors.White;
         }
