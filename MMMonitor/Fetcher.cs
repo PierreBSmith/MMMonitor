@@ -21,9 +21,9 @@ namespace MMMonitor
 
         const string SHIP_FIELDS = "name%2Ctype%2Ctier%2Cship_id";
 
-        static int REQ_WAIT_TIME = 150;
+        static TimeSpan REQ_WAIT_TIME = TimeSpan.FromMilliseconds(150);
 
-        private static DateTime lastReqTime = DateTime.Now - TimeSpan.FromMilliseconds(REQ_WAIT_TIME);
+        private static DateTime lastReqTime = DateTime.Now - REQ_WAIT_TIME;
 
         private static string HttpGet(string url)
         {
@@ -33,7 +33,7 @@ namespace MMMonitor
                 Exception exception = null;
                 for(int i = 0; i < 2; ++i)
                 {
-                    int timeSinceReq = (int)(DateTime.Now - lastReqTime).TotalMilliseconds;
+                    TimeSpan timeSinceReq = DateTime.Now - lastReqTime;
                     if(timeSinceReq < REQ_WAIT_TIME)
                         System.Threading.Thread.Sleep(REQ_WAIT_TIME - timeSinceReq);
                     try
@@ -155,7 +155,7 @@ namespace MMMonitor
             foreach(Player player in playerIdDict.Values)
             {
                 if(player.ship.ship_id != null)
-                    getPlayerShip(player, player.ship.ship_id);
+                    getPlayerShip(player);
             }
 
             return playerIdDict.Values.ToList();
@@ -219,12 +219,13 @@ namespace MMMonitor
         }
         */
         
-        public static void getPlayerShip(Player player, string shipID)
+        //Query for ship stats
+        public static void getPlayerShip(Player player)
         {
-            //Query for ship stats
-            if (shipID == null)
+            if (player.ship.ship_id == null)
                 return;
-            string responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + "&account_id=" + player.ID + "&ship_id=" + shipID + "&fields=pvp.battles%2Cpvp.wins");
+            string responseString = HttpGet("https://api.worldofwarships.com/wows/ships/stats/?application_id=" + APP_ID + 
+                "&account_id=" + player.ID + "&ship_id=" + player.ship.ship_id + "&fields=pvp.battles%2Cpvp.wins");
             responseString = responseString.Replace("\"" + player.ID + "\"", "\"ID\"");
             dynamic shipsStuff = JsonConvert.DeserializeObject(responseString);
 

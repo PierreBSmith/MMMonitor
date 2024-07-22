@@ -6,7 +6,7 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:MMMonitor"
         mc:Ignorable="d"
-        Title="MMM" Height="825" Width="1200">
+        Title="MMM" Height="825" Width="1300">
     <Window.Resources>
         <Style TargetType="TextBlock" x:Key="TextBlockStyle">
             <Setter Property="FontSize" Value="14"/>
@@ -150,7 +150,7 @@
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="Your Team" FontWeight="Bold" Background="Transparent"/>
             </Border>
-            <TextBlock Name="CarryAdvantage" Grid.Row="1" HorizontalAlignment="Right"/>
+            <TextBlock Name="CarryAdvantage" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,0,5,0"/>
             <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1">
                 <TextBlock Text="Enemy Team" FontWeight="Bold" TextAlignment="Right" Background="Transparent"/>
             </Border>
